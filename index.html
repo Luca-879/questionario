@@ -96,7 +96,6 @@
             width: 1.15rem;
             height: 1.15rem;
         }
-        /* New Progress Bar Styles */
         #progress-container {
             position: sticky;
             top: 0;
@@ -122,18 +121,23 @@
         <div class="loader"></div>
     </div>
 
-    <!-- Login View for Admin -->
-    <div id="login-view" class="hidden flex items-center justify-center h-screen bg-gray-50">
+    <!-- Login/Register View for Admin -->
+    <div id="auth-view" class="hidden flex items-center justify-center h-screen bg-gray-50">
         <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg border">
-            <h2 class="text-3xl font-bold text-center text-gray-800">Accesso Amministratore</h2>
-            <form id="login-form">
+            <h2 id="auth-title" class="text-3xl font-bold text-center text-gray-800">Accesso Amministratore</h2>
+            <p id="auth-subtitle" class="text-center text-gray-500"></p>
+            <form id="auth-form">
+                 <div>
+                    <label for="email" class="form-label">Email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required class="form-input">
+                </div>
                 <div>
                     <label for="password" class="form-label">Password</label>
                     <input id="password" name="password" type="password" required class="form-input" placeholder="••••••••">
                 </div>
-                <p id="login-error" class="text-red-500 text-sm h-4"></p>
+                <p id="auth-error" class="text-red-500 text-sm h-4"></p>
                 <div>
-                    <button type="submit" class="w-full btn-primary mt-4">Accedi</button>
+                    <button id="auth-button" type="submit" class="w-full btn-primary mt-4">Accedi</button>
                 </div>
             </form>
         </div>
@@ -144,12 +148,9 @@
         <header class="flex justify-between items-center mb-10">
             <div>
                 <h1 class="text-4xl font-extrabold text-gray-800">Dashboard</h1>
-                <p class="text-gray-500 mt-1">Gestisci i tuoi questionari con facilità.</p>
+                <p id="admin-email" class="text-gray-500 mt-1">Gestisci i tuoi questionari con facilità.</p>
             </div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-indigo-300" viewBox="0 0 20 20" fill="currentColor">
-              <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-              <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
-            </svg>
+            <button id="logout-btn" class="btn-secondary">Logout</button>
         </header>
         
         <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
@@ -169,7 +170,6 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Risposte Ricevute</h2>
             <div id="submissions-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Submission cards will be dynamically inserted here -->
                 <p class="text-gray-500 col-span-full">Nessuna risposta ricevuta ancora.</p>
             </div>
         </div>
@@ -184,7 +184,6 @@
 
     <!-- Client Form View -->
     <div id="form-view" class="max-w-4xl mx-auto hidden">
-        <!-- New Progress Bar -->
         <div id="progress-container">
             <div class="max-w-4xl mx-auto px-4">
                  <div class="bg-slate-200 rounded-full h-2">
@@ -200,7 +199,6 @@
             </div>
 
             <form id="questionnaire-form">
-                
                 <div id="section-1" class="form-section">
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 1: La Tua Attività</h2>
                      <div class="space-y-6">
@@ -230,7 +228,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div id="section-2" class="form-section">
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 2: Obiettivi del Sito</h2>
                      <div class="space-y-6">
@@ -252,7 +249,6 @@
                         </div>
                     </div>
                 </div>
-
                  <div id="section-3" class="form-section">
                      <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 3: Dettagli Tecnici</h2>
                      <div class="space-y-6">
@@ -290,7 +286,6 @@
                         </div>
                      </div>
                 </div>
-                
                 <div id="section-4" class="form-section">
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 4: Design e Stile</h2>
                      <div class="space-y-6">
@@ -316,7 +311,6 @@
                         </div>
                      </div>
                 </div>
-
                 <div id="section-5" class="form-section">
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 5: Budget e Tempistiche</h2>
                     <div class="space-y-6">
@@ -340,7 +334,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="text-center mt-10 mb-10">
                     <button type="submit" class="btn-primary text-lg px-10 py-4">Invia le Tue Risposte</button>
                 </div>
@@ -363,9 +356,9 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- IMPORTANT: PASTE YOUR FIREBASE CONFIG HERE ---
+        // --- PASTE YOUR FIREBASE CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyD4W778sPOLHB6T0FFmVQJYgxSG8IsxhME",
             authDomain: "questionario-2ea91.firebaseapp.com",
@@ -375,22 +368,17 @@
             appId: "1:633943846024:web:d869668176307fc3c0833d"
         };
         // ------------------------------------
-        
-        // --- ADMIN PASSWORD ---
-        // Cambia questa password con una a tua scelta
-        const ADMIN_PASSWORD = 'password123';
-        // --------------------
 
         let db, auth;
         const loadingView = document.getElementById('loading-view');
-        const loginView = document.getElementById('login-view');
+        const authView = document.getElementById('auth-view');
         const adminView = document.getElementById('admin-view');
         const formView = document.getElementById('form-view');
         const thankYouView = document.getElementById('thank-you-view');
         const submissionDetailView = document.getElementById('submission-detail-view');
 
         const showView = (view) => {
-            [loadingView, loginView, adminView, formView, thankYouView, submissionDetailView].forEach(v => v.classList.add('hidden'));
+            [loadingView, authView, adminView, formView, thankYouView, submissionDetailView].forEach(v => v.classList.add('hidden'));
             view.classList.remove('hidden');
         };
 
@@ -399,52 +387,71 @@
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
-                await signInAnonymously(auth);
                 return true;
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                 let errorMessage = `<div class="text-center text-red-600 p-4">
-                    <h2 class="text-2xl font-bold">Errore di Configurazione Firebase</h2>
-                    <p class="mt-2">C'è stato un problema. Controlla la console per i dettagli tecnici.</p>
-                </div>`;
-                 if (error.code === 'auth/configuration-not-found' || error.code === 'auth/operation-not-allowed') {
-                    errorMessage = `<div class="text-center text-red-600 p-4">
-                        <h2 class="text-2xl font-bold">Azione Richiesta: Abilita Firebase Authentication</h2>
-                        <div class="mt-4 text-left max-w-lg mx-auto bg-gray-100 p-4 rounded-lg text-gray-800">
-                            <p class="font-semibold mb-2">Come risolvere:</p>
-                            <ol class="list-decimal list-inside space-y-2">
-                                <li>Vai alla tua <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 underline">Console di Firebase</a>.</li>
-                                <li>Seleziona il progetto: <strong class="text-black">${firebaseConfig.projectId}</strong>.</li>
-                                <li>Menu: <strong>Build &rarr; Authentication</strong>.</li>
-                                <li>Tab <strong>"Metodo di accesso"</strong>, abilita <strong>"Anonimo"</strong>.</li>
-                                <li>Ricarica questa pagina.</li>
-                            </ol>
-                        </div>
-                    </div>`;
-                }
-                loadingView.innerHTML = errorMessage;
+                loadingView.innerHTML = `<div class="text-center text-red-600 p-4"><h2 class="text-2xl font-bold">Errore di Configurazione Firebase</h2><p class="mt-2">Controlla che la configurazione sia incollata correttamente.</p></div>`;
                 return false;
             }
         }
-
+        
         function handleRouting() {
             const params = new URLSearchParams(window.location.search);
             const questionnaireId = params.get('id');
             if (questionnaireId) {
-                loadQuestionnaire(questionnaireId);
+                signInAnonymously(auth).then(() => {
+                    loadQuestionnaire(questionnaireId);
+                }).catch(error => {
+                    console.error("Anonymous sign-in failed:", error);
+                    loadingView.innerHTML = `<p class="text-red-500">Impossibile accedere al questionario. L'autenticazione anonima è richiesta.</p>`;
+                });
             } else {
-                // Admin area routing
-                if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
-                    showView(adminView);
-                    loadSubmissions();
-                } else {
-                    showView(loginView);
-                }
+                 onAuthStateChanged(auth, (user) => {
+                    if (user && !user.isAnonymous) {
+                        showView(adminView);
+                        document.getElementById('admin-email').textContent = `Benvenuto, ${user.email}`;
+                        loadSubmissions();
+                    } else {
+                        checkAdminExists();
+                    }
+                });
             }
         }
         
+        async function checkAdminExists() {
+            const adminConfigRef = doc(db, 'admin', 'config');
+            try {
+                const docSnap = await getDoc(adminConfigRef);
+                if (docSnap.exists()) {
+                    setupAuthForm(false); // Admin exists, show login
+                } else {
+                    setupAuthForm(true); // No admin, show registration
+                }
+            } catch (e) {
+                console.error("Error checking admin config:", e);
+                // Fallback to login if we can't check
+                setupAuthForm(false);
+            }
+        }
+
+        function setupAuthForm(isRegistration) {
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const button = document.getElementById('auth-button');
+            
+            if (isRegistration) {
+                title.textContent = 'Crea Account Amministratore';
+                subtitle.textContent = 'Questo account verrà usato per gestire tutti i questionari. Potrai crearlo una sola volta.';
+                button.textContent = 'Registra';
+            } else {
+                title.textContent = 'Accesso Amministratore';
+                subtitle.textContent = '';
+                button.textContent = 'Accedi';
+            }
+            showView(authView);
+        }
+
         function loadQuestionnaire(id) {
-            showView(loadingView);
             const docRef = doc(db, "questionnaires", id);
             const unsubscribe = onSnapshot(docRef, (docSnap) => {
                 if (docSnap.exists()) {
@@ -459,51 +466,44 @@
             }, (error) => {
                 console.error("Error subscribing to questionnaire:", error);
                 unsubscribe();
-                 let errorMessageHTML = `<div class="text-center text-red-600 p-4">...</div>`;
-                 if (error.code === 'permission-denied') {
-                     errorMessageHTML = `<div class="text-center text-red-600 p-4">
-                        <h2 class="text-2xl font-bold">Azione Richiesta: Correggi le Regole di Firestore</h2>
-                        <div class="mt-4 text-left max-w-lg mx-auto bg-gray-100 p-4 rounded-lg text-gray-800">
-                            <p class="font-semibold mb-2">Come risolvere:</p>
-                            <ol class="list-decimal list-inside space-y-2">
-                                <li>Vai alla tua <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 underline">Console di Firebase</a>.</li>
-                                <li>Menu: <strong>Build &rarr; Firestore Database</strong>.</li>
-                                <li>Tab <strong>"Regole" (Rules)</strong>.</li>
-                                <li>Sostituisci il testo con: <pre class="bg-gray-200 p-2 mt-1 rounded text-sm text-left"><code>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if request.auth != null;
-    }
-  }
-}</code></pre></li>
-                                 <li>Clicca <strong>"Pubblica"</strong>.</li>
-                            </ol>
-                        </div>
-                    </div>`;
-                }
-                loadingView.innerHTML = errorMessageHTML;
+                loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Errore nel caricamento. Controlla le regole di Firestore.</div>`;
             });
         }
+        
+        function setupAuthListener() {
+            const authForm = document.getElementById('auth-form');
+            const authError = document.getElementById('auth-error');
 
-        function setupLoginListener() {
-            const loginForm = document.getElementById('login-form');
-            const loginError = document.getElementById('login-error');
-            loginForm.addEventListener('submit', (e) => {
+            authForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                const email = e.target.email.value;
                 const password = e.target.password.value;
-                if (password === ADMIN_PASSWORD) {
-                    sessionStorage.setItem('isAdminAuthenticated', 'true');
-                    showView(adminView);
-                    loadSubmissions();
-                } else {
-                    loginError.textContent = 'Password non corretta. Riprova.';
-                    e.target.password.value = '';
+                const button = document.getElementById('auth-button');
+                const isRegistration = button.textContent === 'Registra';
+                authError.textContent = '';
+
+                try {
+                    if (isRegistration) {
+                        // Create user and then set the admin config flag
+                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                        const adminConfigRef = doc(db, 'admin', 'config');
+                        await setDoc(adminConfigRef, { adminUid: userCredential.user.uid, createdAt: serverTimestamp() });
+                        // onAuthStateChanged will handle showing the admin view
+                    } else {
+                        await signInWithEmailAndPassword(auth, email, password);
+                        // onAuthStateChanged will handle showing the admin view
+                    }
+                } catch (error) {
+                    console.error("Authentication error:", error.code, error.message);
+                    authError.textContent = 'Credenziali non valide o errore. Riprova.';
                 }
             });
         }
 
         function setupAdminListeners() {
+            document.getElementById('logout-btn').addEventListener('click', () => {
+                signOut(auth);
+            });
             const createLinkBtn = document.getElementById('create-link-btn');
             const linkDisplay = document.getElementById('link-display');
             const generatedLinkInput = document.getElementById('generated-link');
@@ -511,8 +511,6 @@ service cloud.firestore {
             const copyFeedback = document.getElementById('copy-feedback');
 
             createLinkBtn.addEventListener('click', () => {
-                createLinkBtn.disabled = true;
-                createLinkBtn.innerHTML = `<svg class="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">...</svg>Creazione...`;
                 const newDocRef = doc(collection(db, "questionnaires"));
                 const newId = newDocRef.id;
                 const url = `${window.location.origin}${window.location.pathname}?id=${newId}`;
@@ -522,15 +520,16 @@ service cloud.firestore {
 
                 (async () => {
                     try {
-                        await setDoc(newDocRef, { status: "pending", createdAt: serverTimestamp() });
+                        const adminUid = auth.currentUser.uid;
+                        await setDoc(newDocRef, { 
+                            status: "pending", 
+                            createdAt: serverTimestamp(),
+                            owner: adminUid // Associate questionnaire with admin
+                        });
                         console.log("Document successfully written with ID:", newId);
                     } catch (error) {
                         console.error("Error creating link:", error);
                         alert("Errore nel salvataggio del link. Controlla le regole di Firestore e riprova.");
-                        linkDisplay.classList.add('hidden');
-                    } finally {
-                        createLinkBtn.disabled = false;
-                        createLinkBtn.innerHTML = 'Genera Link Unico';
                     }
                 })();
             });
@@ -542,7 +541,7 @@ service cloud.firestore {
                 setTimeout(() => copyFeedback.textContent = '', 2000);
             });
             
-             document.getElementById('back-to-admin-btn').addEventListener('click', () => showView(adminView) );
+            document.getElementById('back-to-admin-btn').addEventListener('click', () => showView(adminView) );
         }
         
         function loadSubmissions() {
@@ -569,6 +568,10 @@ service cloud.firestore {
                     card.addEventListener('click', () => showSubmissionDetails(sub));
                     list.appendChild(card);
                 });
+            }, (error) => {
+                console.error("Error loading submissions:", error);
+                const list = document.getElementById('submissions-list');
+                list.innerHTML = `<p class="text-red-500 col-span-full">Errore: non hai i permessi per leggere le risposte. Aggiorna le regole di Firestore come da guida.</p>`;
             });
         }
         
@@ -622,7 +625,6 @@ service cloud.firestore {
                 }
             });
             
-            // New Progress Bar Logic
             const sections = document.querySelectorAll('.form-section');
             const progressBar = document.getElementById('progress-bar');
             const observer = new IntersectionObserver((entries) => {
@@ -641,7 +643,7 @@ service cloud.firestore {
             const firebaseReady = await initFirebase();
             if (firebaseReady) {
                 handleRouting();
-                setupLoginListener();
+                setupAuthListener();
                 setupAdminListeners();
                 setupFormListener();
             }
@@ -650,8 +652,6 @@ service cloud.firestore {
 
 </body>
 </html>
-
-
 
 
 
