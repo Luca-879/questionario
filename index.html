@@ -122,6 +122,23 @@
         <div class="loader"></div>
     </div>
 
+    <!-- Login View for Admin -->
+    <div id="login-view" class="hidden flex items-center justify-center h-screen bg-gray-50">
+        <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-2xl shadow-lg border">
+            <h2 class="text-3xl font-bold text-center text-gray-800">Accesso Amministratore</h2>
+            <form id="login-form">
+                <div>
+                    <label for="password" class="form-label">Password</label>
+                    <input id="password" name="password" type="password" required class="form-input" placeholder="••••••••">
+                </div>
+                <p id="login-error" class="text-red-500 text-sm h-4"></p>
+                <div>
+                    <button type="submit" class="w-full btn-primary mt-4">Accedi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Admin View -->
     <div id="admin-view" class="p-4 md:p-8 max-w-7xl mx-auto hidden">
         <header class="flex justify-between items-center mb-10">
@@ -348,7 +365,7 @@
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- PASTE YOUR FIREBASE CONFIG HERE ---
+        // --- IMPORTANT: PASTE YOUR FIREBASE CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyD4W778sPOLHB6T0FFmVQJYgxSG8IsxhME",
             authDomain: "questionario-2ea91.firebaseapp.com",
@@ -358,16 +375,22 @@
             appId: "1:633943846024:web:d869668176307fc3c0833d"
         };
         // ------------------------------------
+        
+        // --- ADMIN PASSWORD ---
+        // Cambia questa password con una a tua scelta
+        const ADMIN_PASSWORD = 'password123';
+        // --------------------
 
         let db, auth;
         const loadingView = document.getElementById('loading-view');
+        const loginView = document.getElementById('login-view');
         const adminView = document.getElementById('admin-view');
         const formView = document.getElementById('form-view');
         const thankYouView = document.getElementById('thank-you-view');
         const submissionDetailView = document.getElementById('submission-detail-view');
 
         const showView = (view) => {
-            [loadingView, adminView, formView, thankYouView, submissionDetailView].forEach(v => v.classList.add('hidden'));
+            [loadingView, loginView, adminView, formView, thankYouView, submissionDetailView].forEach(v => v.classList.add('hidden'));
             view.classList.remove('hidden');
         };
 
@@ -410,8 +433,13 @@
             if (questionnaireId) {
                 loadQuestionnaire(questionnaireId);
             } else {
-                showView(adminView);
-                loadSubmissions();
+                // Admin area routing
+                if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
+                    showView(adminView);
+                    loadSubmissions();
+                } else {
+                    showView(loginView);
+                }
             }
         }
         
@@ -455,6 +483,23 @@ service cloud.firestore {
                     </div>`;
                 }
                 loadingView.innerHTML = errorMessageHTML;
+            });
+        }
+
+        function setupLoginListener() {
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const password = e.target.password.value;
+                if (password === ADMIN_PASSWORD) {
+                    sessionStorage.setItem('isAdminAuthenticated', 'true');
+                    showView(adminView);
+                    loadSubmissions();
+                } else {
+                    loginError.textContent = 'Password non corretta. Riprova.';
+                    e.target.password.value = '';
+                }
             });
         }
 
@@ -596,6 +641,7 @@ service cloud.firestore {
             const firebaseReady = await initFirebase();
             if (firebaseReady) {
                 handleRouting();
+                setupLoginListener();
                 setupAdminListeners();
                 setupFormListener();
             }
@@ -604,6 +650,8 @@ service cloud.firestore {
 
 </body>
 </html>
+
+
 
 
 
