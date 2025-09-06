@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionario per Nuovo Sito Web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .form-section {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgb(59 130 246 / 0.5);
+        }
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+        .btn-primary:disabled {
+            background-color: #93c5fd;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #e5e7eb;
+            color: #374151;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+            cursor: pointer;
+        }
+        .btn-secondary:hover {
+            background-color: #d1d5db;
+        }
+        /* Spinner styles */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #2563eb;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* Custom checkbox and radio styles */
+        .custom-checkbox {
+            margin-right: 0.5rem;
+            accent-color: #2563eb;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="loading-view" class="flex items-center justify-center h-screen">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Admin View: To generate links and see submissions -->
+    <div id="admin-view" class="p-4 md:p-8 max-w-4xl mx-auto hidden">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Dashboard Questionari</h1>
+            <p class="text-gray-600 mt-2">Crea un nuovo link da inviare al tuo cliente o visualizza le risposte ricevute.</p>
+        </div>
+        
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Crea Nuovo Questionario</h2>
+            <button id="create-link-btn" class="btn-primary w-full md:w-auto">Genera Link Unico</button>
+            <div id="link-display" class="mt-4 hidden">
+                <p class="font-semibold">Link generato! Copialo e invialo al tuo cliente:</p>
+                <div class="flex items-center space-x-2 mt-2 bg-gray-100 p-3 rounded-md">
+                    <input id="generated-link" type="text" readonly class="form-input flex-grow bg-transparent border-0 focus:ring-0">
+                    <button id="copy-link-btn" class="btn-secondary text-sm px-3 py-2">Copia</button>
+                </div>
+                <p id="copy-feedback" class="text-green-600 text-sm mt-1"></p>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Risposte Ricevute</h2>
+            <div id="submissions-list">
+                <!-- Submissions will be dynamically inserted here -->
+                <p class="text-gray-500">Nessuna risposta ricevuta ancora.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Submission Detail View -->
+    <div id="submission-detail-view" class="p-4 md:p-8 max-w-4xl mx-auto hidden">
+         <button id="back-to-admin-btn" class="btn-secondary mb-6">&larr; Torna alla Dashboard</button>
+         <h1 class="text-3xl font-bold text-gray-800 mb-6">Dettaglio Risposte</h1>
+         <div id="submission-content" class="space-y-4"></div>
+    </div>
+
+
+    <!-- Client Form View: The actual questionnaire -->
+    <div id="form-view" class="p-4 md:p-8 max-w-4xl mx-auto hidden">
+        <div class="text-center mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800">Questionario per il Tuo Nuovo Sito Web</h1>
+            <p class="text-gray-600 mt-2">Grazie per dedicare del tempo a questo questionario. Le tue risposte ci aiuteranno a creare il sito perfetto per te.</p>
+        </div>
+
+        <form id="questionnaire-form">
+            
+            <!-- Section 1: Business Info -->
+            <fieldset class="form-section">
+                <legend class="text-2xl font-semibold mb-6 text-gray-800">Sezione 1: Informazioni sulla Tua Attività</legend>
+                <div class="space-y-6">
+                    <div>
+                        <label for="company_name" class="form-label">1. Nome dell'azienda/attività:</label>
+                        <input type="text" id="company_name" name="company_name" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="contact_person" class="form-label">2. Nome e ruolo del referente principale:</label>
+                        <input type="text" id="contact_person" name="contact_person" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="contact_details" class="form-label">3. Recapiti (email e telefono):</label>
+                        <input type="text" id="contact_details" name="contact_details" class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="business_description" class="form-label">4. Descrivi la tua attività (prodotti/servizi):</label>
+                        <textarea id="business_description" name="business_description" rows="4" class="form-textarea" required></textarea>
+                    </div>
+                    <div>
+                        <label for="business_mission" class="form-label">5. Qual è la mission/valori della tua azienda?</label>
+                        <textarea id="business_mission" name="business_mission" rows="3" class="form-textarea"></textarea>
+                    </div>
+                     <div>
+                        <label for="unique_selling_proposition" class="form-label">6. Cosa ti rende unico rispetto alla concorrenza?</label>
+                        <textarea id="unique_selling_proposition" name="unique_selling_proposition" rows="3" class="form-textarea"></textarea>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Section 2: Website Goals -->
+            <fieldset class="form-section">
+                <legend class="text-2xl font-semibold mb-6 text-gray-800">Sezione 2: Obiettivi del Sito Web</legend>
+                 <div class="space-y-6">
+                    <div>
+                        <label for="primary_goal" class="form-label">7. Qual è l'obiettivo PRIMARIO del sito?</label>
+                        <input type="text" id="primary_goal" name="primary_goal" placeholder="Es: generare contatti, vendere prodotti..." class="form-input" required>
+                    </div>
+                    <div>
+                        <label for="target_audience" class="form-label">8. Chi è il tuo pubblico di riferimento?</label>
+                        <textarea id="target_audience" name="target_audience" rows="3" placeholder="Descrivi il tuo cliente ideale..." class="form-textarea" required></textarea>
+                    </div>
+                    <div>
+                        <label for="user_actions" class="form-label">9. Quali azioni vuoi che gli utenti compiano?</label>
+                        <textarea id="user_actions" name="user_actions" rows="3" placeholder="Es: compilare un form, iscriversi alla newsletter..." class="form-textarea" required></textarea>
+                    </div>
+                     <div>
+                        <label for="success_metrics" class="form-label">10. Come misurerai il successo del sito?</label>
+                        <input type="text" id="success_metrics" name="success_metrics" placeholder="Es: numero di contatti, aumento vendite..." class="form-input">
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Section 3: Project Details -->
+            <fieldset class="form-section">
+                 <legend class="text-2xl font-semibold mb-6 text-gray-800">Sezione 3: Dettagli del Progetto e Funzionalità</legend>
+                 <div class="space-y-6">
+                    <div>
+                        <label for="current_website" class="form-label">11. Possiedi già un sito web? (Se sì, indica URL e cosa non ti piace)</label>
+                        <textarea id="current_website" name="current_website" rows="3" class="form-textarea"></textarea>
+                    </div>
+                    <div>
+                        <label for="domain_hosting" class="form-label">12. Hai già un dominio e un hosting?</label>
+                         <input type="text" id="domain_hosting" name="domain_hosting" placeholder="Es: Sì, con Aruba" class="form-input">
+                    </div>
+                    <div>
+                        <label for="site_pages" class="form-label">13. Quali pagine o sezioni principali prevedi?</label>
+                        <textarea id="site_pages" name="site_pages" rows="4" placeholder="Es: Home, Chi Siamo, Servizi, Contatti..." class="form-textarea" required></textarea>
+                    </div>
+                    <div>
+                        <label class="form-label">14. Hai bisogno di funzionalità particolari?</label>
+                        <div class="space-y-2 mt-2">
+                           <div class="flex items-center"><input type="checkbox" id="feat_ecommerce" name="features" value="E-commerce" class="custom-checkbox"><label for="feat_ecommerce">E-commerce per vendita online</label></div>
+                           <div class="flex items-center"><input type="checkbox" id="feat_blog" name="features" value="Blog" class="custom-checkbox"><label for="feat_blog">Blog o sezione news</label></div>
+                           <div class="flex items-center"><input type="checkbox" id="feat_portfolio" name="features" value="Portfolio" class="custom-checkbox"><label for="feat_portfolio">Portfolio per mostrare lavori</label></div>
+                           <div class="flex items-center"><input type="checkbox" id="feat_members" name="features" value="Area Riservata" class="custom-checkbox"><label for="feat_members">Area riservata per utenti</label></div>
+                           <div class="flex items-center"><input type="checkbox" id="feat_booking" name="features" value="Sistema di Prenotazione" class="custom-checkbox"><label for="feat_booking">Sistema di prenotazione online</label></div>
+                           <div class="flex items-center"><input type="checkbox" id="feat_multilang" name="features" value="Multilingua" class="custom-checkbox"><label for="feat_multilang">Sito multilingua</label></div>
+                        </div>
+                        <input type="text" name="features_other" class="form-input mt-3" placeholder="Altro (specificare)">
+                    </div>
+                     <div>
+                        <label class="form-label">15. Chi fornirà i contenuti (testi, immagini)?</label>
+                        <select id="content_provider" name="content_provider" class="form-select">
+                            <option value="client_provides_all">Li fornirò tutti io, pronti per l'inserimento</option>
+                            <option value="needs_copywriting">Ho bisogno di supporto per la scrittura dei testi</option>
+                            <option value="needs_images">Ho bisogno di supporto per la ricerca di immagini/video</option>
+                        </select>
+                    </div>
+                 </div>
+            </fieldset>
+            
+            <!-- Section 4: Design -->
+            <fieldset class="form-section">
+                <legend class="text-2xl font-semibold mb-6 text-gray-800">Sezione 4: Design e Stile Grafico</legend>
+                 <div class="space-y-6">
+                    <div>
+                        <label for="logo_branding" class="form-label">16. Possiedi già un logo e un'identità visiva?</label>
+                        <input type="text" id="logo_branding" name="logo_branding" class="form-input">
+                    </div>
+                    <div>
+                        <label for="inspirational_sites" class="form-label">17. Indica 3 siti web che ti piacciono (fornisci link).</label>
+                        <textarea id="inspirational_sites" name="inspirational_sites" rows="3" class="form-textarea"></textarea>
+                    </div>
+                    <div>
+                        <label for="competitor_sites" class="form-label">18. Indica 1-2 siti dei tuoi concorrenti.</label>
+                        <textarea id="competitor_sites" name="competitor_sites" rows="3" class="form-textarea"></textarea>
+                    </div>
+                    <div>
+                        <label for="style_adjectives" class="form-label">19. Quali aggettivi dovrebbero descrivere lo stile del tuo sito?</label>
+                        <input type="text" id="style_adjectives" name="style_adjectives" placeholder="Es: moderno, minimalista, professionale..." class="form-input">
+                    </div>
+                     <div>
+                        <label for="color_font_preferences" class="form-label">20. Hai preferenze su colori o font?</label>
+                        <input type="text" id="color_font_preferences" name="color_font_preferences" class="form-input">
+                    </div>
+                 </div>
+            </fieldset>
+
+            <!-- Section 5: Budget and Timeline -->
+            <fieldset class="form-section">
+                <legend class="text-2xl font-semibold mb-6 text-gray-800">Sezione 5: Budget e Tempistiche</legend>
+                <div class="space-y-6">
+                    <div>
+                        <label class="form-label">21. Qual è il budget approssimativo per questo progetto?</label>
+                        <select id="budget" name="budget" class="form-select">
+                            <option value="<1500">Meno di 1.500 €</option>
+                            <option value="1500-3000">Tra 1.500 € e 3.000 €</option>
+                            <option value="3000-5000">Tra 3.000 € e 5.000 €</option>
+                            <option value=">5000">Oltre 5.000 €</option>
+                            <option value="prefer_not_to_say">Preferisco non specificarlo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="deadline" class="form-label">22. Hai una data di scadenza o di lancio ideale?</label>
+                        <input type="text" id="deadline" name="deadline" class="form-input">
+                    </div>
+                    <div>
+                        <label for="maintenance" class="form-label">23. Chi si occuperà della gestione e manutenzione del sito?</label>
+                        <input type="text" id="maintenance" name="maintenance" placeholder="Es: Io stesso, sono interessato a un piano di manutenzione..." class="form-input">
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="text-center mt-10">
+                <button type="submit" class="btn-primary text-lg px-8 py-3">Invia le Tue Risposte</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Thank You View -->
+    <div id="thank-you-view" class="p-4 md:p-8 max-w-2xl mx-auto text-center hidden">
+         <div class="bg-white p-10 rounded-lg shadow-md">
+             <svg class="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h1 class="text-3xl font-bold text-gray-800 mt-6">Grazie!</h1>
+            <p class="text-gray-600 mt-2">Le tue risposte sono state inviate con successo. Ti contatterò al più presto per discutere i prossimi passi.</p>
+        </div>
+    </div>
+
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, addDoc, onSnapshot, collection, query, serverTimestamp, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // --- IMPORTANT: PASTE YOUR FIREBASE CONFIG HERE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4W778sPOLHB6T0FFmVQJYgxSG8IsxhME",
+            authDomain: "questionario-2ea91.firebaseapp.com",
+            projectId: "questionario-2ea91",
+            storageBucket: "questionario-2ea91.firebasestorage.app",
+            messagingSenderId: "633943846024",
+            appId: "1:633943846024:web:d869668176307fc3c0833d"
+        };
+        // ---------------------------------------------------
+
+        let db, auth;
+
+        // Views
+        const loadingView = document.getElementById('loading-view');
+        const adminView = document.getElementById('admin-view');
+        const formView = document.getElementById('form-view');
+        const thankYouView = document.getElementById('thank-you-view');
+        const submissionDetailView = document.getElementById('submission-detail-view');
+
+        const showView = (view) => {
+            loadingView.classList.add('hidden');
+            adminView.classList.add('hidden');
+            formView.classList.add('hidden');
+            thankYouView.classList.add('hidden');
+            submissionDetailView.classList.add('hidden');
+            view.classList.remove('hidden');
+        };
+
+        async function initFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                await signInAnonymously(auth);
+                return true;
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                let errorMessage = `<div class="text-center text-red-600 p-4">
+                    <h2 class="text-2xl font-bold">Errore di Configurazione Firebase</h2>
+                    <p class="mt-2">C'è stato un problema. Controlla la console per i dettagli tecnici.</p>
+                </div>`;
+
+                if (error.code === 'auth/configuration-not-found') {
+                    errorMessage = `<div class="text-center text-red-600 p-4">
+                        <h2 class="text-2xl font-bold">Azione Richiesta: Abilita Firebase Authentication</h2>
+                        <p class="mt-2">L'errore (<span class="font-mono bg-red-100 px-1 rounded">${error.code}</span>) indica che il servizio di Autenticazione non è stato attivato per questo progetto.</p>
+                        <div class="mt-4 text-left max-w-lg mx-auto bg-gray-100 p-4 rounded-lg text-gray-800">
+                            <p class="font-semibold mb-2">Come risolvere il problema:</p>
+                            <ol class="list-decimal list-inside space-y-2">
+                                <li>Vai alla tua <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 underline">Console di Firebase</a>.</li>
+                                <li>Seleziona il tuo progetto: <strong class="text-black">${firebaseConfig.projectId}</strong>.</li>
+                                <li>Nel menu a sinistra, vai su <strong>Build &rarr; Authentication</strong>.</li>
+                                <li>Clicca sul grande pulsante blu <strong>"Inizia" (Get Started)</strong>.</li>
+                                <li>Dopo aver cliccato, ricarica questa pagina. Non serve abilitare "Anonimo" in questa fase, basta solo avviare il servizio.</li>
+                            </ol>
+                        </div>
+                    </div>`;
+                }
+                
+                loadingView.innerHTML = errorMessage;
+                return false;
+            }
+        }
+
+        function handleRouting() {
+            const params = new URLSearchParams(window.location.search);
+            const questionnaireId = params.get('id');
+
+            if (questionnaireId) {
+                // Client is filling out a form
+                loadQuestionnaire(questionnaireId);
+            } else {
+                // Admin view
+                showView(adminView);
+                loadSubmissions();
+            }
+        }
+        
+        function loadQuestionnaire(id) {
+            // Show loading spinner immediately while we wait for the doc
+            showView(loadingView);
+            const docRef = doc(db, "questionnaires", id);
+
+            const unsubscribe = onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    // We found the document, stop listening to prevent memory leaks
+                    unsubscribe();
+                    
+                    const data = docSnap.data();
+                    if (data.status === 'pending') {
+                        showView(formView);
+                    } else if (data.status === 'completed') {
+                        showView(thankYouView);
+                    }
+                }
+                // If it doesn't exist yet, we just keep waiting. The onSnapshot will fire again when it's created.
+            }, (error) => {
+                console.error("Error subscribing to questionnaire:", error);
+                unsubscribe();
+                
+                let errorMessageHTML = `<div class="text-center text-red-600 p-4">
+                    <h2 class="text-2xl font-bold">Errore nel Caricamento</h2>
+                    <p class="mt-2">Impossibile caricare il questionario. Il link potrebbe essere scaduto o non valido.</p>
+                </div>`;
+
+                if (error.code === 'permission-denied') {
+                     errorMessageHTML = `<div class="text-center text-red-600 p-4">
+                        <h2 class="text-2xl font-bold">Azione Richiesta: Correggi le Regole di Firestore</h2>
+                        <p class="mt-2">L'errore (<span class="font-mono bg-red-100 px-1 rounded">${error.code}</span>) indica che l'app non ha il permesso di leggere i dati dal database.</p>
+                        <div class="mt-4 text-left max-w-lg mx-auto bg-gray-100 p-4 rounded-lg text-gray-800">
+                            <p class="font-semibold mb-2">Come risolvere il problema:</p>
+                            <ol class="list-decimal list-inside space-y-2">
+                                <li>Vai alla tua <a href="https://console.firebase.google.com/" target="_blank" class="text-blue-600 underline">Console di Firebase</a>.</li>
+                                <li>Nel menu a sinistra, vai su <strong>Build &rarr; Firestore Database</strong>.</li>
+                                <li>Clicca sulla scheda <strong>"Regole" (Rules)</strong> in alto.</li>
+                                <li>Sostituisci il testo presente con questo blocco di codice e clicca su <strong>"Pubblica"</strong>:</li>
+                                <li class="list-none mt-2"><pre class="bg-gray-200 p-2 rounded text-sm text-left"><code>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</code></pre></li>
+                            </ol>
+                        </div>
+                    </div>`;
+                }
+
+                loadingView.innerHTML = errorMessageHTML;
+            });
+
+            // Add a timeout to prevent infinite loading if the doc never appears
+            setTimeout(() => {
+                unsubscribe();
+                // Check if we are still on the loading view. If yes, it means the doc was not found.
+                if (!loadingView.classList.contains('hidden')) {
+                     loadingView.innerHTML = `<div class="text-center text-red-600 p-4">
+                        <h2 class="text-2xl font-bold">Questionario non Trovato</h2>
+                        <p class="mt-2">Il link potrebbe essere errato o il questionario non è stato ancora creato. Riprova tra poco o contatta l'amministratore.</p>
+                    </div>`;
+                }
+            }, 10000); // 10 seconds timeout
+        }
+
+        function setupAdminListeners() {
+            const createLinkBtn = document.getElementById('create-link-btn');
+            const linkDisplay = document.getElementById('link-display');
+            const generatedLinkInput = document.getElementById('generated-link');
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+            const copyFeedback = document.getElementById('copy-feedback');
+
+            createLinkBtn.addEventListener('click', () => {
+                // Change button state immediately for better UX
+                createLinkBtn.disabled = true;
+                createLinkBtn.innerHTML = `
+                    <div class="flex items-center justify-center">
+                        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Creazione...
+                    </div>`;
+
+                // 1. Generate ID on the client side first
+                const newDocRef = doc(collection(db, "questionnaires"));
+                const newId = newDocRef.id;
+                const url = `${window.location.origin}${window.location.pathname}?id=${newId}`;
+                
+                // 2. Display the link INSTANTLY to the user
+                generatedLinkInput.value = url;
+                linkDisplay.classList.remove('hidden');
+                copyFeedback.textContent = '';
+
+                // 3. Save to Firestore in the background without making the user wait
+                (async () => {
+                    try {
+                        // Removed the aggressive timeout logic. Let Firebase handle its own connection timing.
+                        await setDoc(newDocRef, {
+                            status: "pending",
+                            createdAt: serverTimestamp()
+                        });
+                        
+                        console.log("Document successfully written in the background with ID:", newId);
+                    } catch (error) {
+                        console.error("Error creating questionnaire link in the background:", error);
+                        alert("Si è verificato un errore nel salvataggio del link. Potrebbe non essere valido. Riprova.");
+                        linkDisplay.classList.add('hidden'); // Hide the invalid link
+                    } finally {
+                        // Restore button state after the background operation is done or fails.
+                        createLinkBtn.disabled = false;
+                        createLinkBtn.innerHTML = 'Genera Link Unico';
+                    }
+                })();
+            });
+
+            copyLinkBtn.addEventListener('click', () => {
+                generatedLinkInput.select();
+                document.execCommand('copy');
+                copyFeedback.textContent = 'Copiato!';
+                setTimeout(() => copyFeedback.textContent = '', 2000);
+            });
+            
+             document.getElementById('back-to-admin-btn').addEventListener('click', () => {
+                showView(adminView);
+             });
+        }
+        
+        function loadSubmissions() {
+            const q = query(collection(db, "questionnaires"));
+            onSnapshot(q, (querySnapshot) => {
+                const submissionsList = document.getElementById('submissions-list');
+                submissionsList.innerHTML = '';
+                
+                const submissions = [];
+                querySnapshot.forEach((doc) => {
+                    if (doc.data().status === 'completed') {
+                       submissions.push({ id: doc.id, ...doc.data() });
+                    }
+                });
+
+                if (submissions.length === 0) {
+                     submissionsList.innerHTML = '<p class="text-gray-500">Nessuna risposta ricevuta ancora.</p>';
+                     return;
+                }
+                
+                // Sort by submission date, newest first
+                submissions.sort((a, b) => b.submittedAt.toMillis() - a.submittedAt.toMillis());
+
+                submissions.forEach(submission => {
+                    const submissionDate = submission.submittedAt.toDate().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
+                    const div = document.createElement('div');
+                    div.className = 'p-4 border-b hover:bg-gray-50 cursor-pointer';
+                    div.innerHTML = `
+                        <p class="font-semibold text-lg text-blue-600">${submission.answers.company_name || 'Azienda non specificata'}</p>
+                        <p class="text-gray-600">Inviato da: ${submission.answers.contact_person || 'N/A'}</p>
+                        <p class="text-sm text-gray-500">Data: ${submissionDate}</p>
+                    `;
+                    div.addEventListener('click', () => showSubmissionDetails(submission));
+                    submissionsList.appendChild(div);
+                });
+            });
+        }
+        
+        function showSubmissionDetails(submission) {
+            const contentDiv = document.getElementById('submission-content');
+            contentDiv.innerHTML = '';
+            
+            const answers = submission.answers;
+            
+            const questionMap = {
+                company_name: "1. Nome azienda", contact_person: "2. Referente", contact_details: "3. Recapiti",
+                business_description: "4. Descrizione attività", business_mission: "5. Mission/Valori",
+                unique_selling_proposition: "6. Vantaggio competitivo", primary_goal: "7. Obiettivo primario",
+                target_audience: "8. Pubblico di riferimento", user_actions: "9. Azioni utente desiderate",
+                success_metrics: "10. Metriche di successo", current_website: "11. Sito attuale",
+                domain_hosting: "12. Dominio e Hosting", site_pages: "13. Pagine del sito",
+                features: "14. Funzionalità particolari", features_other: "14b. Altre funzionalità",
+                content_provider: "15. Fornitore contenuti", logo_branding: "16. Logo e identità visiva",
+                inspirational_sites: "17. Siti di ispirazione", competitor_sites: "18. Siti concorrenti",
+                style_adjectives: "19. Aggettivi di stile", color_font_preferences: "20. Preferenze colori/font",
+                budget: "21. Budget", deadline: "22. Scadenza", maintenance: "23. Manutenzione"
+            };
+
+            for (const key in answers) {
+                if (answers.hasOwnProperty(key) && answers[key]) {
+                    const question = questionMap[key] || key;
+                    let answer = answers[key];
+                    if (Array.isArray(answer)) {
+                        answer = answer.join(', ');
+                    }
+                    const detailEl = document.createElement('div');
+                    detailEl.className = 'p-4 bg-gray-50 rounded-lg';
+                    detailEl.innerHTML = `<h3 class="font-semibold text-gray-700">${question}</h3><p class="text-gray-800 mt-1 whitespace-pre-wrap">${answer}</p>`;
+                    contentDiv.appendChild(detailEl);
+                }
+            }
+
+            showView(submissionDetailView);
+        }
+
+        function setupFormListener() {
+            const form = document.getElementById('questionnaire-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const submitButton = form.querySelector('button[type="submit"]');
+                submitButton.disabled = true;
+                submitButton.textContent = 'Invio in corso...';
+
+                const formData = new FormData(form);
+                const answers = {};
+                
+                // Handle regular inputs
+                for (let [key, value] of formData.entries()) {
+                    if (key === 'features') {
+                       if (!answers[key]) answers[key] = [];
+                       answers[key].push(value);
+                    } else {
+                       answers[key] = value;
+                    }
+                }
+                
+                const params = new URLSearchParams(window.location.search);
+                const questionnaireId = params.get('id');
+
+                if (questionnaireId) {
+                    try {
+                        const docRef = doc(db, "questionnaires", questionnaireId);
+                        await updateDoc(docRef, {
+                            status: 'completed',
+                            submittedAt: serverTimestamp(),
+                            answers: answers
+                        });
+                        showView(thankYouView);
+                    } catch (error) {
+                        console.error("Error submitting form:", error);
+                        alert("Si è verificato un errore durante l'invio. Riprova.");
+                        submitButton.disabled = false;
+                        submitButton.textContent = 'Invia le Tue Risposte';
+                    }
+                }
+            });
+        }
+
+
+        // Main execution
+        document.addEventListener('DOMContentLoaded', async () => {
+            const firebaseReady = await initFirebase();
+            if (firebaseReady) {
+                handleRouting();
+                setupAdminListeners();
+                setupFormListener();
+            }
+        });
+    </script>
+
+</body>
+</html>
+
+
