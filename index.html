@@ -113,6 +113,66 @@
             border-radius: 4px;
             transition: width 0.4s ease-in-out;
         }
+        
+        /* New Info Popup Styles */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background-color: #e2e8f0;
+            color: #64748b;
+            font-weight: bold;
+            font-style: normal;
+            cursor: pointer;
+            margin-left: 8px;
+            transition: all 0.2s ease;
+        }
+        .info-icon:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+        #info-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            z-index: 40;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        #info-modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #info-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.95);
+            z-index: 50;
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+         #info-modal.active {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -203,27 +263,39 @@
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 1: La Tua Attività</h2>
                      <div class="space-y-6">
                         <div>
-                            <label for="company_name" class="form-label">1. Nome dell'azienda/attività:</label>
+                            <label for="company_name" class="form-label flex items-center">1. Nome dell'azienda/attività:
+                                <i class="info-icon" data-info="Indica il nome ufficiale della tua attività. Verrà usato nel copyright del sito e in altre aree formali per definire l'identità del progetto.">i</i>
+                            </label>
                             <input type="text" id="company_name" name="company_name" class="form-input" required>
                         </div>
                         <div>
-                            <label for="contact_person" class="form-label">2. Nome e ruolo del referente principale:</label>
+                            <label for="contact_person" class="form-label flex items-center">2. Nome e ruolo del referente principale:
+                                <i class="info-icon" data-info="Chi sarà il mio contatto principale per questo progetto? Conoscere il tuo ruolo (es. Titolare, Responsabile Marketing) mi aiuta a calibrare la comunicazione.">i</i>
+                            </label>
                             <input type="text" id="contact_person" name="contact_person" class="form-input" required>
                         </div>
                         <div>
-                            <label for="contact_details" class="form-label">3. Recapiti (email e telefono):</label>
+                            <label for="contact_details" class="form-label flex items-center">3. Recapiti (email e telefono):
+                                 <i class="info-icon" data-info="Mi servono per poterti contattare durante lo sviluppo del progetto. Questi dati rimarranno privati e non verranno pubblicati sul sito, a meno che non me lo chieda tu.">i</i>
+                            </label>
                             <input type="text" id="contact_details" name="contact_details" class="form-input" required>
                         </div>
                         <div>
-                            <label for="business_description" class="form-label">4. Descrivi la tua attività (prodotti/servizi):</label>
+                            <label for="business_description" class="form-label flex items-center">4. Descrivi la tua attività (prodotti/servizi):
+                                 <i class="info-icon" data-info="Spiegami in poche parole cosa fai. Questo mi aiuta a capire il cuore del tuo business e a comunicarlo in modo efficace sul sito web.">i</i>
+                            </label>
                             <textarea id="business_description" name="business_description" rows="4" class="form-textarea" required></textarea>
                         </div>
                         <div>
-                            <label for="business_mission" class="form-label">5. Qual è la mission/valori della tua azienda?</label>
+                            <label for="business_mission" class="form-label flex items-center">5. Qual è la mission/valori della tua azienda?
+                                 <i class="info-icon" data-info="Cosa guida la tua attività? Conoscere i tuoi valori (es. qualità, innovazione, sostenibilità) mi permette di creare un sito che parli la tua stessa lingua.">i</i>
+                            </label>
                             <textarea id="business_mission" name="business_mission" rows="3" class="form-textarea"></textarea>
                         </div>
                          <div>
-                            <label for="unique_selling_proposition" class="form-label">6. Cosa ti rende unico rispetto alla concorrenza?</label>
+                            <label for="unique_selling_proposition" class="form-label flex items-center">6. Cosa ti rende unico rispetto alla concorrenza?
+                                <i class="info-icon" data-info="Perché un cliente dovrebbe scegliere te e non un altro? Questa è la tua 'arma segreta'. La metteremo in risalto in tutto il sito.">i</i>
+                            </label>
                             <textarea id="unique_selling_proposition" name="unique_selling_proposition" rows="3" class="form-textarea"></textarea>
                         </div>
                     </div>
@@ -232,19 +304,27 @@
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 2: Obiettivi del Sito</h2>
                      <div class="space-y-6">
                         <div>
-                            <label for="primary_goal" class="form-label">7. Qual è l'obiettivo PRIMARIO del sito?</label>
+                            <label for="primary_goal" class="form-label flex items-center">7. Qual è l'obiettivo PRIMARIO del sito?
+                                <i class="info-icon" data-info="Questa è la domanda più importante! Sapere se vuoi vendere, trovare nuovi clienti o informare mi aiuta a progettare il sito in modo che raggiunga il tuo scopo principale.">i</i>
+                            </label>
                             <input type="text" id="primary_goal" name="primary_goal" placeholder="Es: generare contatti, vendere prodotti..." class="form-input" required>
                         </div>
                         <div>
-                            <label for="target_audience" class="form-label">8. Chi è il tuo pubblico di riferimento?</label>
+                            <label for="target_audience" class="form-label flex items-center">8. Chi è il tuo pubblico di riferimento?
+                                <i class="info-icon" data-info="A chi ci rivolgiamo? Immagina il tuo cliente ideale. Conoscere età, interessi e bisogni mi aiuta a creare un design e un linguaggio che catturino la sua attenzione.">i</i>
+                            </label>
                             <textarea id="target_audience" name="target_audience" rows="3" placeholder="Descrivi il tuo cliente ideale..." class="form-textarea" required></textarea>
                         </div>
                         <div>
-                            <label for="user_actions" class="form-label">9. Quali azioni vuoi che gli utenti compiano?</label>
+                            <label for="user_actions" class="form-label flex items-center">9. Quali azioni vuoi che gli utenti compiano?
+                                <i class="info-icon" data-info="Cosa deve fare un visitatore sul sito? Chiamarti, comprare, iscriversi? Definiamo insieme i 'call-to-action' principali per guidare l'utente.">i</i>
+                            </label>
                             <textarea id="user_actions" name="user_actions" rows="3" placeholder="Es: compilare un form, iscriversi alla newsletter..." class="form-textarea" required></textarea>
                         </div>
                          <div>
-                            <label for="success_metrics" class="form-label">10. Come misurerai il successo del sito?</label>
+                            <label for="success_metrics" class="form-label flex items-center">10. Come misurerai il successo del sito?
+                                <i class="info-icon" data-info="Come sapremo che il sito sta funzionando? Stabilire degli obiettivi misurabili (es. +20% di contatti in 3 mesi) ci aiuterà a valutare l'efficacia del progetto.">i</i>
+                            </label>
                             <input type="text" id="success_metrics" name="success_metrics" placeholder="Es: numero di contatti, aumento vendite..." class="form-input">
                         </div>
                     </div>
@@ -253,19 +333,27 @@
                      <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 3: Dettagli Tecnici</h2>
                      <div class="space-y-6">
                         <div>
-                            <label for="current_website" class="form-label">11. Possiedi già un sito web? (Se sì, indica URL e cosa non ti piace)</label>
-                            <textarea id="current_website" name="current_website" rows="3" class="form-textarea"></textarea>
+                            <label for="current_website" class="form-label flex items-center">11. Possiedi già un sito web?
+                                <i class="info-icon" data-info="Se hai già un sito, indicami l'indirizzo. Analizzeremo insieme cosa funziona e cosa no, per fare in modo che il nuovo sito sia un grande passo avanti.">i</i>
+                            </label>
+                            <textarea id="current_website" name="current_website" placeholder="Se sì, indica URL e cosa non ti piace" rows="3" class="form-textarea"></textarea>
                         </div>
                         <div>
-                            <label for="domain_hosting" class="form-label">12. Hai già un dominio e un hosting?</label>
+                            <label for="domain_hosting" class="form-label flex items-center">12. Hai già un dominio e un hosting?
+                                <i class="info-icon" data-info="Il dominio è l'indirizzo del sito (es. nomeazienda.it) e l'hosting è lo spazio online che lo ospita. Se li hai già, bene! Altrimenti, posso aiutarti a scegliere la soluzione migliore.">i</i>
+                            </label>
                              <input type="text" id="domain_hosting" name="domain_hosting" placeholder="Es: Sì, con Aruba" class="form-input">
                         </div>
                         <div>
-                            <label for="site_pages" class="form-label">13. Quali pagine o sezioni principali prevedi?</label>
+                            <label for="site_pages" class="form-label flex items-center">13. Quali pagine o sezioni principali prevedi?
+                                <i class="info-icon" data-info="Facciamo un primo elenco delle pagine che ti servono (es. Home, Chi sono, Servizi, Contatti). Questo ci darà la struttura di base, che potremo poi espandere.">i</i>
+                            </label>
                             <textarea id="site_pages" name="site_pages" rows="4" placeholder="Es: Home, Chi Siamo, Servizi, Contatti..." class="form-textarea" required></textarea>
                         </div>
                         <div>
-                            <label class="form-label">14. Hai bisogno di funzionalità particolari?</label>
+                            <label class="form-label flex items-center">14. Hai bisogno di funzionalità particolari?
+                                <i class="info-icon" data-info="Oltre alle pagine standard, ti serve qualcosa di specifico? Un'area per vendere prodotti, un calendario per prenotazioni, un blog? Seleziona le opzioni che ti interessano.">i</i>
+                            </label>
                             <div class="space-y-2 mt-2">
                                <div class="flex items-center"><input type="checkbox" id="feat_ecommerce" name="features" value="E-commerce" class="custom-checkbox"><label for="feat_ecommerce">E-commerce per vendita online</label></div>
                                <div class="flex items-center"><input type="checkbox" id="feat_blog" name="features" value="Blog" class="custom-checkbox"><label for="feat_blog">Blog o sezione news</label></div>
@@ -277,7 +365,9 @@
                             <input type="text" name="features_other" class="form-input mt-3" placeholder="Altro (specificare)">
                         </div>
                          <div>
-                            <label class="form-label">15. Chi fornirà i contenuti (testi, immagini)?</label>
+                            <label class="form-label flex items-center">15. Chi fornirà i contenuti (testi, immagini)?
+                                <i class="info-icon" data-info="Il successo di un sito dipende molto dalla qualità dei contenuti. Se hai già testi e foto professionali, perfetto! Altrimenti, possiamo valutare insieme un supporto per crearli.">i</i>
+                            </label>
                             <select id="content_provider" name="content_provider" class="form-select">
                                 <option value="client_provides_all">Li fornirò tutti io, pronti per l'inserimento</option>
                                 <option value="needs_copywriting">Ho bisogno di supporto per la scrittura dei testi</option>
@@ -290,23 +380,33 @@
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 4: Design e Stile</h2>
                      <div class="space-y-6">
                         <div>
-                            <label for="logo_branding" class="form-label">16. Possiedi già un logo e un'identità visiva?</label>
+                            <label for="logo_branding" class="form-label flex items-center">16. Possiedi già un logo e un'identità visiva?
+                                <i class="info-icon" data-info="Se hai già un logo, colori e font aziendali, li useremo come base per il design del sito. Se non li hai, possiamo progettarli insieme.">i</i>
+                            </label>
                             <input type="text" id="logo_branding" name="logo_branding" class="form-input">
                         </div>
                         <div>
-                            <label for="inspirational_sites" class="form-label">17. Indica 3 siti web che ti piacciono (fornisci link).</label>
+                            <label for="inspirational_sites" class="form-label flex items-center">17. Indica 3 siti web che ti piacciono (fornisci link).
+                                <i class="info-icon" data-info="Questo mi aiuta a capire i tuoi gusti. Non dobbiamo copiarli, ma mi daranno un'idea dello stile grafico che preferisci (es. minimalista, colorato, elegante...).">i</i>
+                            </label>
                             <textarea id="inspirational_sites" name="inspirational_sites" rows="3" class="form-textarea"></textarea>
                         </div>
                         <div>
-                            <label for="competitor_sites" class="form-label">18. Indica 1-2 siti dei tuoi concorrenti.</label>
+                            <label for="competitor_sites" class="form-label flex items-center">18. Indica 1-2 siti dei tuoi concorrenti.
+                                <i class="info-icon" data-info="Analizzare i concorrenti è fondamentale. Vediamo cosa fanno bene e dove possiamo fare meglio, per creare un sito che ti dia un vantaggio competitivo.">i</i>
+                            </label>
                             <textarea id="competitor_sites" name="competitor_sites" rows="3" class="form-textarea"></textarea>
                         </div>
                         <div>
-                            <label for="style_adjectives" class="form-label">19. Quali aggettivi dovrebbero descrivere lo stile del tuo sito?</label>
+                            <label for="style_adjectives" class="form-label flex items-center">19. Quali aggettivi dovrebbero descrivere lo stile del tuo sito?
+                                <i class="info-icon" data-info="Prova a descrivere l'atmosfera del sito con qualche parola. Ad esempio: 'professionale e affidabile', oppure 'moderno, giovane e creativo'.">i</i>
+                            </label>
                             <input type="text" id="style_adjectives" name="style_adjectives" placeholder="Es: moderno, minimalista, professionale..." class="form-input">
                         </div>
                          <div>
-                            <label for="color_font_preferences" class="form-label">20. Hai preferenze su colori o font?</label>
+                            <label for="color_font_preferences" class="form-label flex items-center">20. Hai preferenze su colori o font?
+                                <i class="info-icon" data-info="Ci sono colori che ami o che odi? Qualche stile di scrittura che preferisci? Ogni dettaglio aiuta a creare un design su misura per te.">i</i>
+                            </label>
                             <input type="text" id="color_font_preferences" name="color_font_preferences" class="form-input">
                         </div>
                      </div>
@@ -315,7 +415,9 @@
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 5: Budget e Tempistiche</h2>
                     <div class="space-y-6">
                         <div>
-                            <label class="form-label">21. Qual è il budget approssimativo per questo progetto?</label>
+                            <label class="form-label flex items-center">21. Qual è il budget approssimativo per questo progetto?
+                                <i class="info-icon" data-info="Avere un'idea del budget non serve a 'gonfiare' il prezzo, ma a propormi la soluzione tecnologica e di design più adatta ed efficace per le tue possibilità, senza farti perdere tempo.">i</i>
+                            </label>
                             <select id="budget" name="budget" class="form-select">
                                 <option value="<1500">Meno di 1.500 €</option>
                                 <option value="1500-3000">Tra 1.500 € e 3.000 €</option>
@@ -325,11 +427,15 @@
                             </select>
                         </div>
                         <div>
-                            <label for="deadline" class="form-label">22. Hai una data di scadenza o di lancio ideale?</label>
+                            <label for="deadline" class="form-label flex items-center">22. Hai una data di scadenza o di lancio ideale?
+                                <i class="info-icon" data-info="Se hai una scadenza precisa (es. per un evento, una fiera, una promozione), fammelo sapere. Questo ci aiuterà a pianificare il lavoro in modo efficiente.">i</i>
+                            </label>
                             <input type="text" id="deadline" name="deadline" class="form-input">
                         </div>
                         <div>
-                            <label for="maintenance" class="form-label">23. Chi si occuperà della gestione e manutenzione del sito?</label>
+                            <label for="maintenance" class="form-label flex items-center">23. Chi si occuperà della gestione e manutenzione del sito?
+                                <i class="info-icon" data-info="Un sito web ha bisogno di cure costanti (aggiornamenti, backup). Puoi decidere di gestirlo in autonomia (ti fornirò le basi) oppure affidarti a un piano di manutenzione annuale per non avere pensieri.">i</i>
+                            </label>
                             <input type="text" id="maintenance" name="maintenance" placeholder="Es: Io stesso, sono interessato a un piano di manutenzione..." class="form-input">
                         </div>
                     </div>
@@ -349,6 +455,22 @@
             </svg>
             <h1 class="text-3xl font-bold text-gray-800 mt-6">Grazie!</h1>
             <p class="text-gray-600 mt-2">Le tue risposte sono state inviate con successo. Ti contatterò al più presto per discutere i prossimi passi.</p>
+        </div>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="info-modal-backdrop" class="hidden">
+        <div id="info-modal" class="hidden">
+            <button id="info-modal-close" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <div class="flex items-center mb-4">
+                 <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center mr-4">
+                     <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                 </div>
+                 <h3 class="text-xl font-bold text-gray-800">Perché questa domanda?</h3>
+            </div>
+            <p id="info-modal-text" class="text-gray-600"></p>
         </div>
     </div>
 
@@ -400,6 +522,7 @@
             const questionnaireId = params.get('id');
             if (questionnaireId) {
                 signInAnonymously(auth).then(() => {
+                    showView(loadingView);
                     loadQuestionnaire(questionnaireId);
                 }).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
@@ -429,7 +552,6 @@
                 }
             } catch (e) {
                 console.error("Error checking admin config:", e);
-                // Fallback to login if we can't check
                 setupAuthForm(false);
             }
         }
@@ -462,6 +584,8 @@
                     } else if (data.status === 'completed') {
                         showView(thankYouView);
                     }
+                } else {
+                    loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Questionario non trovato. Il link potrebbe essere errato.</div>`;
                 }
             }, (error) => {
                 console.error("Error subscribing to questionnaire:", error);
@@ -484,14 +608,11 @@
 
                 try {
                     if (isRegistration) {
-                        // Create user and then set the admin config flag
                         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                         const adminConfigRef = doc(db, 'admin', 'config');
                         await setDoc(adminConfigRef, { adminUid: userCredential.user.uid, createdAt: serverTimestamp() });
-                        // onAuthStateChanged will handle showing the admin view
                     } else {
                         await signInWithEmailAndPassword(auth, email, password);
-                        // onAuthStateChanged will handle showing the admin view
                     }
                 } catch (error) {
                     console.error("Authentication error:", error.code, error.message);
@@ -524,7 +645,7 @@
                         await setDoc(newDocRef, { 
                             status: "pending", 
                             createdAt: serverTimestamp(),
-                            owner: adminUid // Associate questionnaire with admin
+                            owner: adminUid 
                         });
                         console.log("Document successfully written with ID:", newId);
                     } catch (error) {
@@ -638,6 +759,48 @@
             }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
             sections.forEach(section => observer.observe(section));
         }
+        
+        function setupInfoPopups() {
+            const modalBackdrop = document.getElementById('info-modal-backdrop');
+            const modal = document.getElementById('info-modal');
+            const modalText = document.getElementById('info-modal-text');
+            const closeBtn = document.getElementById('info-modal-close');
+            const infoIcons = document.querySelectorAll('.info-icon');
+
+            function openModal(text) {
+                modalText.textContent = text;
+                modalBackdrop.classList.remove('hidden');
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modalBackdrop.classList.add('active');
+                    modal.classList.add('active');
+                }, 10);
+            }
+
+            function closeModal() {
+                modalBackdrop.classList.remove('active');
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modalBackdrop.classList.add('hidden');
+                    modal.classList.add('hidden');
+                }, 300);
+            }
+
+            infoIcons.forEach(icon => {
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const infoText = icon.getAttribute('data-info');
+                    openModal(infoText);
+                });
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            modalBackdrop.addEventListener('click', (e) => {
+                if (e.target === modalBackdrop) {
+                    closeModal();
+                }
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const firebaseReady = await initFirebase();
@@ -646,13 +809,13 @@
                 setupAuthListener();
                 setupAdminListeners();
                 setupFormListener();
+                setupInfoPopups();
             }
         });
     </script>
 
 </body>
 </html>
-
 
 
 
