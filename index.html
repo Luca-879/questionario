@@ -709,10 +709,33 @@
         function showSubmissionDetails(submission) {
             const contentDiv = document.getElementById('submission-content');
             contentDiv.innerHTML = '';
+
+            if (submission.submittedAt && submission.submittedAt.toDate) {
+                const date = submission.submittedAt.toDate();
+                const formattedDate = date.toLocaleDateString('it-IT', {
+                    day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                const dateEl = document.createElement('div');
+                dateEl.className = 'bg-indigo-50 p-4 rounded-lg border border-indigo-200 text-indigo-800 mb-6';
+                dateEl.innerHTML = `<h3 class="font-semibold text-lg flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.415L11 9.586V6z" clip-rule="evenodd" /></svg>
+                    Inviato il:</h3><p class="text-lg mt-1 pl-7">${formattedDate}</p>`;
+                contentDiv.appendChild(dateEl);
+            }
+
             const answers = submission.answers;
             const questionMap = { company_name: "1. Nome azienda", contact_person: "2. Referente", contact_details: "3. Recapiti", business_description: "4. Descrizione attività", business_mission: "5. Mission/Valori", unique_selling_proposition: "6. Vantaggio competitivo", primary_goal: "7. Obiettivo primario", target_audience: "8. Pubblico di riferimento", user_actions: "9. Azioni utente desiderate", success_metrics: "10. Metriche di successo", current_website: "11. Sito attuale", domain_hosting: "12. Dominio e Hosting", site_pages: "13. Pagine del sito", features: "14. Funzionalità", features_other: "14b. Altre funzionalità", content_provider: "15. Fornitore contenuti", logo_branding: "16. Logo e identità", inspirational_sites: "17. Siti di ispirazione", competitor_sites: "18. Siti concorrenti", style_adjectives: "19. Aggettivi di stile", color_font_preferences: "20. Preferenze colori/font", budget: "21. Budget", deadline: "22. Scadenza", maintenance: "23. Manutenzione" };
-            for (const key in answers) {
-                if (answers.hasOwnProperty(key) && answers[key]) {
+            
+            const orderedKeys = [
+                'company_name', 'contact_person', 'contact_details', 'business_description', 'business_mission', 
+                'unique_selling_proposition', 'primary_goal', 'target_audience', 'user_actions', 'success_metrics', 
+                'current_website', 'domain_hosting', 'site_pages', 'features', 'features_other', 
+                'content_provider', 'logo_branding', 'inspirational_sites', 'competitor_sites', 'style_adjectives', 
+                'color_font_preferences', 'budget', 'deadline', 'maintenance'
+            ];
+
+            orderedKeys.forEach(key => {
+                if (answers.hasOwnProperty(key) && answers[key] && answers[key].length > 0) {
                     const question = questionMap[key] || key;
                     let answer = Array.isArray(answers[key]) ? answers[key].join(', ') : answers[key];
                     const detailEl = document.createElement('div');
@@ -720,7 +743,8 @@
                     detailEl.innerHTML = `<h3 class="font-semibold text-gray-700">${question}</h3><p class="text-gray-800 mt-1 whitespace-pre-wrap">${answer}</p>`;
                     contentDiv.appendChild(detailEl);
                 }
-            }
+            });
+
             showView(views.submissionDetailView);
         }
 
@@ -891,4 +915,5 @@
 
 </body>
 </html>
+
 
