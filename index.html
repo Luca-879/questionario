@@ -113,8 +113,6 @@
             border-radius: 4px;
             transition: width 0.4s ease-in-out;
         }
-        
-        /* New Info Popup Styles */
         .info-icon {
             display: inline-flex;
             align-items: center;
@@ -259,6 +257,7 @@
             </div>
 
             <form id="questionnaire-form">
+                <!-- All form sections here -->
                 <div id="section-1" class="form-section">
                     <h2 class="text-2xl font-bold text-gray-800 border-b border-gray-200 pb-4 mb-6">Sezione 1: La Tua Attività</h2>
                      <div class="space-y-6">
@@ -440,10 +439,26 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="text-center mt-10 mb-10">
-                    <button type="submit" class="btn-primary text-lg px-10 py-4">Invia le Tue Risposte</button>
+                    <button type="submit" class="btn-primary text-lg px-10 py-4">Vai al Riepilogo</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Review View -->
+    <div id="review-view" class="p-4 md:p-8 max-w-4xl mx-auto hidden">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800">Riepilogo delle Tue Risposte</h1>
+            <p class="text-gray-500 mt-3 text-lg">Controlla che sia tutto corretto prima dell'invio definitivo.</p>
+        </div>
+        <div id="review-content" class="space-y-8">
+            <!-- Review content will be dynamically inserted here -->
+        </div>
+        <div class="mt-10 pt-6 border-t flex flex-col sm:flex-row justify-center items-center gap-4">
+            <button id="edit-answers-btn" class="btn-secondary w-full sm:w-auto">Modifica Risposte</button>
+            <button id="submit-final-btn" class="btn-primary text-lg px-10 py-4 w-full sm:w-auto">Conferma e Invia</button>
         </div>
     </div>
     
@@ -492,16 +507,13 @@
         // ------------------------------------
 
         let db, auth;
-        const loadingView = document.getElementById('loading-view');
-        const authView = document.getElementById('auth-view');
-        const adminView = document.getElementById('admin-view');
-        const formView = document.getElementById('form-view');
-        const thankYouView = document.getElementById('thank-you-view');
-        const submissionDetailView = document.getElementById('submission-detail-view');
+        let temporaryAnswers = {}; // To store answers before final submission
+        const views = {};
 
         const showView = (view) => {
-            [loadingView, authView, adminView, formView, thankYouView, submissionDetailView].forEach(v => v.classList.add('hidden'));
+            Object.values(views).forEach(v => v.classList.add('hidden'));
             view.classList.remove('hidden');
+            window.scrollTo(0, 0);
         };
 
         async function initFirebase() {
@@ -512,7 +524,7 @@
                 return true;
             } catch (error) {
                 console.error("Firebase initialization failed:", error);
-                loadingView.innerHTML = `<div class="text-center text-red-600 p-4"><h2 class="text-2xl font-bold">Errore di Configurazione Firebase</h2><p class="mt-2">Controlla che la configurazione sia incollata correttamente.</p></div>`;
+                views.loadingView.innerHTML = `<div class="text-center text-red-600 p-4"><h2 class="text-2xl font-bold">Errore di Configurazione Firebase</h2><p class="mt-2">Controlla che la configurazione sia incollata correttamente.</p></div>`;
                 return false;
             }
         }
@@ -522,16 +534,16 @@
             const questionnaireId = params.get('id');
             if (questionnaireId) {
                 signInAnonymously(auth).then(() => {
-                    showView(loadingView);
+                    showView(views.loadingView);
                     loadQuestionnaire(questionnaireId);
                 }).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
-                    loadingView.innerHTML = `<p class="text-red-500">Impossibile accedere al questionario. L'autenticazione anonima è richiesta.</p>`;
+                    views.loadingView.innerHTML = `<p class="text-red-500">Impossibile accedere al questionario. L'autenticazione anonima è richiesta.</p>`;
                 });
             } else {
                  onAuthStateChanged(auth, (user) => {
                     if (user && !user.isAnonymous) {
-                        showView(adminView);
+                        showView(views.adminView);
                         document.getElementById('admin-email').textContent = `Benvenuto, ${user.email}`;
                         loadSubmissions();
                     } else {
@@ -546,9 +558,9 @@
             try {
                 const docSnap = await getDoc(adminConfigRef);
                 if (docSnap.exists()) {
-                    setupAuthForm(false); // Admin exists, show login
+                    setupAuthForm(false);
                 } else {
-                    setupAuthForm(true); // No admin, show registration
+                    setupAuthForm(true);
                 }
             } catch (e) {
                 console.error("Error checking admin config:", e);
@@ -570,7 +582,7 @@
                 subtitle.textContent = '';
                 button.textContent = 'Accedi';
             }
-            showView(authView);
+            showView(views.authView);
         }
 
         function loadQuestionnaire(id) {
@@ -580,17 +592,17 @@
                     unsubscribe();
                     const data = docSnap.data();
                     if (data.status === 'pending') {
-                        showView(formView);
+                        showView(views.formView);
                     } else if (data.status === 'completed') {
-                        showView(thankYouView);
+                        showView(views.thankYouView);
                     }
                 } else {
-                    loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Questionario non trovato. Il link potrebbe essere errato.</div>`;
+                    views.loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Questionario non trovato. Il link potrebbe essere errato.</div>`;
                 }
             }, (error) => {
                 console.error("Error subscribing to questionnaire:", error);
                 unsubscribe();
-                loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Errore nel caricamento. Controlla le regole di Firestore.</div>`;
+                views.loadingView.innerHTML = `<div class="text-center text-red-500 p-4">Errore nel caricamento. Controlla le regole di Firestore.</div>`;
             });
         }
         
@@ -622,9 +634,7 @@
         }
 
         function setupAdminListeners() {
-            document.getElementById('logout-btn').addEventListener('click', () => {
-                signOut(auth);
-            });
+            document.getElementById('logout-btn').addEventListener('click', () => signOut(auth));
             const createLinkBtn = document.getElementById('create-link-btn');
             const linkDisplay = document.getElementById('link-display');
             const generatedLinkInput = document.getElementById('generated-link');
@@ -662,7 +672,7 @@
                 setTimeout(() => copyFeedback.textContent = '', 2000);
             });
             
-            document.getElementById('back-to-admin-btn').addEventListener('click', () => showView(adminView) );
+            document.getElementById('back-to-admin-btn').addEventListener('click', () => showView(views.adminView) );
         }
         
         function loadSubmissions() {
@@ -711,41 +721,102 @@
                     contentDiv.appendChild(detailEl);
                 }
             }
-            showView(submissionDetailView);
+            showView(views.submissionDetailView);
         }
 
         function setupFormListener() {
             const form = document.getElementById('questionnaire-form');
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const btn = form.querySelector('button[type="submit"]');
-                btn.disabled = true;
-                btn.textContent = 'Invio in corso...';
                 const formData = new FormData(form);
-                const answers = {};
+                temporaryAnswers = {};
                 for (let [key, value] of formData.entries()) {
                     if (key === 'features') {
-                       if (!answers[key]) answers[key] = [];
-                       answers[key].push(value);
+                       if (!temporaryAnswers[key]) temporaryAnswers[key] = [];
+                       temporaryAnswers[key].push(value);
                     } else if (value) {
-                       answers[key] = value;
+                       temporaryAnswers[key] = value;
                     }
                 }
+                populateReviewView();
+                showView(views.reviewView);
+            });
+        }
+
+        function populateReviewView() {
+            const reviewContent = document.getElementById('review-content');
+            reviewContent.innerHTML = '';
+            const questionMap = { company_name: "1. Nome azienda", contact_person: "2. Referente", contact_details: "3. Recapiti", business_description: "4. Descrizione attività", business_mission: "5. Mission/Valori", unique_selling_proposition: "6. Vantaggio competitivo", primary_goal: "7. Obiettivo primario", target_audience: "8. Pubblico di riferimento", user_actions: "9. Azioni utente desiderate", success_metrics: "10. Metriche di successo", current_website: "11. Sito attuale", domain_hosting: "12. Dominio e Hosting", site_pages: "13. Pagine del sito", features: "14. Funzionalità", features_other: "14b. Altre funzionalità", content_provider: "15. Fornitore contenuti", logo_branding: "16. Logo e identità", inspirational_sites: "17. Siti di ispirazione", competitor_sites: "18. Siti concorrenti", style_adjectives: "19. Aggettivi di stile", color_font_preferences: "20. Preferenze colori/font", budget: "21. Budget", deadline: "22. Scadenza", maintenance: "23. Manutenzione" };
+            
+            const sections = document.querySelectorAll('.form-section');
+            sections.forEach(section => {
+                const sectionId = section.id;
+                const sectionTitle = section.querySelector('h2').textContent;
+                let sectionHTML = '';
+
+                const inputs = section.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    const key = input.name;
+                    if(temporaryAnswers[key] && temporaryAnswers[key].length > 0) {
+                        const question = questionMap[key] || key;
+                        let answer = Array.isArray(temporaryAnswers[key]) ? temporaryAnswers[key].join(', ') : temporaryAnswers[key];
+                         sectionHTML += `<div class="mb-3"><h4 class="font-semibold text-gray-600">${question}</h4><p class="text-gray-800 whitespace-pre-wrap">${answer}</p></div>`;
+                    }
+                });
+
+                if(sectionHTML) {
+                    const sectionWrapper = document.createElement('div');
+                    sectionWrapper.className = 'bg-white p-6 rounded-xl shadow-sm border';
+                    sectionWrapper.innerHTML = `
+                        <div class="flex justify-between items-center mb-4 pb-4 border-b">
+                            <h3 class="text-xl font-bold text-gray-800">${sectionTitle}</h3>
+                            <button class="edit-section-btn text-sm text-indigo-600 hover:underline" data-section-id="${sectionId}">Modifica</button>
+                        </div>
+                        ${sectionHTML}
+                    `;
+                    reviewContent.appendChild(sectionWrapper);
+                }
+            });
+            
+            document.querySelectorAll('.edit-section-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const sectionId = e.target.getAttribute('data-section-id');
+                    showView(views.formView);
+                    document.getElementById(sectionId).scrollIntoView({ behavior: 'smooth', block: 'center' });
+                });
+            });
+        }
+
+        function setupReviewListeners() {
+            document.getElementById('edit-answers-btn').addEventListener('click', () => showView(views.formView));
+            
+            const finalSubmitBtn = document.getElementById('submit-final-btn');
+            finalSubmitBtn.addEventListener('click', async () => {
+                finalSubmitBtn.disabled = true;
+                finalSubmitBtn.textContent = 'Invio in corso...';
+                
                 const id = new URLSearchParams(window.location.search).get('id');
                 if (id) {
                     try {
                         const docRef = doc(db, "questionnaires", id);
-                        await updateDoc(docRef, { status: 'completed', submittedAt: serverTimestamp(), answers: answers });
-                        showView(thankYouView);
+                        await updateDoc(docRef, { 
+                            status: 'completed', 
+                            submittedAt: serverTimestamp(), 
+                            answers: temporaryAnswers 
+                        });
+                        showView(views.thankYouView);
                     } catch (error) {
                         console.error("Error submitting:", error);
                         alert("Errore durante l'invio. Riprova.");
-                        btn.disabled = false;
-                        btn.textContent = 'Invia le Tue Risposte';
+                        finalSubmitBtn.disabled = false;
+                        finalSubmitBtn.textContent = 'Conferma e Invia';
                     }
                 }
             });
-            
+        }
+        
+        function setupProgressAndInfoListeners() {
+            // Progress Bar
             const sections = document.querySelectorAll('.form-section');
             const progressBar = document.getElementById('progress-bar');
             const observer = new IntersectionObserver((entries) => {
@@ -758,9 +829,8 @@
                 });
             }, { rootMargin: "-50% 0px -50% 0px", threshold: 0 });
             sections.forEach(section => observer.observe(section));
-        }
-        
-        function setupInfoPopups() {
+
+            // Info Popups
             const modalBackdrop = document.getElementById('info-modal-backdrop');
             const modal = document.getElementById('info-modal');
             const modalText = document.getElementById('info-modal-text');
@@ -793,30 +863,31 @@
                     openModal(infoText);
                 });
             });
-
             closeBtn.addEventListener('click', closeModal);
-            modalBackdrop.addEventListener('click', (e) => {
-                if (e.target === modalBackdrop) {
-                    closeModal();
-                }
-            });
+            modalBackdrop.addEventListener('click', (e) => e.target === modalBackdrop && closeModal());
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Cache all views
+            views.loadingView = document.getElementById('loading-view');
+            views.authView = document.getElementById('auth-view');
+            views.adminView = document.getElementById('admin-view');
+            views.formView = document.getElementById('form-view');
+            views.reviewView = document.getElementById('review-view');
+            views.thankYouView = document.getElementById('thank-you-view');
+            views.submissionDetailView = document.getElementById('submission-detail-view');
+
             const firebaseReady = await initFirebase();
             if (firebaseReady) {
                 handleRouting();
                 setupAuthListener();
                 setupAdminListeners();
                 setupFormListener();
-                setupInfoPopups();
+                setupReviewListeners();
+                setupProgressAndInfoListeners();
             }
         });
     </script>
 
 </body>
 </html>
-
-
-
-
